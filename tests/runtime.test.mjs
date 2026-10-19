@@ -5,10 +5,11 @@ import vm from 'node:vm';
 
 const source = readFileSync(new URL('../Crunchyroll.OfficialCN.js', import.meta.url), 'utf8');
 
-function execute(response) {
+function execute(response, argument) {
   const outputs = [];
   const context = { $done(value) { outputs.push(JSON.parse(JSON.stringify(value))); } };
   if (response !== undefined) context.$response = response;
+  if (argument !== undefined) context.$argument = argument;
   // No HTTP client, timers, storage, or Node APIs are provided to the runtime.
   vm.runInNewContext(source, context, { timeout: 1000 });
   assert.equal(outputs.length, 1, 'the response must complete exactly once');
@@ -48,6 +49,12 @@ test('uses Traditional Chinese when Simplified Chinese is absent', () => {
   delete input.subtitles['zh-CN'];
   const actual = JSON.parse(execute(response(input)).body);
   assert.equal(actual.subtitles['en-US'].url, input.subtitles['zh-HK'].url);
+});
+
+test('can leave the English track untouched for forced machine translation', () => {
+  assert.deepEqual(execute(response(playback()), {source: '始终机翻', machine_translation: true}), {});
+  const official = JSON.parse(execute(response(playback()), {source: '始终机翻', machine_translation: false}).body);
+  assert.equal(official.subtitles['en-US'].url, playback().subtitles['zh-CN'].url);
 });
 
 test('keeps the original response when Chinese subtitles are missing', () => {

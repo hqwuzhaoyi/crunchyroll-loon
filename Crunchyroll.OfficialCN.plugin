@@ -1,12 +1,18 @@
-#!name = Crunchyroll 官方中文字幕
-#!desc = 将 English 字幕入口指向已有的官方简中；缺简中时使用官方繁中。没有中文轨时保留原字幕。本插件不提供机器翻译。
+#!name = Crunchyroll 中文字幕
+#!desc = 官方中文优先；没有中文时用 Google 翻译英文 ASS 字幕。机翻会发送英文对白至 Google，失败时保留英文。测试版，机翻链路仍需真机确认。
 #!author = hqwuzhaoyi
 #!homepage = https://github.com/hqwuzhaoyi/crunchyroll-loon
 #!loon_version = 3.5.1(983)
 #!date = 2026-10-20
 
+[Argument]
+machine_translation = switch,true,type=boolean,tag=英文机翻兜底,desc=将普通英文对白发送至 Google 翻译
+source = select,"官方优先","始终机翻",type=string,tag=字幕来源,desc=始终机翻可用于检验英文字幕翻译
+display = select,"仅中文","中英双语",type=string,tag=机翻字幕显示
+
 [Script]
-response if ${url} ~= /^https:\/\/www\.crunchyroll\.com\/playback\/v3\/[^/?]+\/ios\/iphone\/play(?:\?|$)/i && ${request.method} == "GET" && ${response.status} == 200 then script("https://raw.githubusercontent.com/hqwuzhaoyi/crunchyroll-loon/v0.1.0/Crunchyroll.OfficialCN.js") with tag="Crunchyroll：官方中文字幕", requires_body=true, timeout=5
+response if ${url} ~= /^https:\/\/www\.crunchyroll\.com\/playback\/v3\/[^/?]+\/ios\/iphone\/play(?:\?|$)/i && ${request.method} == "GET" && ${response.status} == 200 then script("https://raw.githubusercontent.com/hqwuzhaoyi/crunchyroll-loon/v0.2.0-beta.1/Crunchyroll.OfficialCN.js", {${source}, ${machine_translation}}) with tag="Crunchyroll：官方中文字幕", requires_body=true, timeout=5
+response if ${machine_translation} == true && ${url} ~= /^https:\/\/vod-fy-mod\.crunchyrollcdn\.com\/static\/[^?#]*\/subtitles\/enus\/[^?#]*\.ass(?:\?|$)/i && ${request.method} == "GET" && ${response.status} == 200 then script("https://raw.githubusercontent.com/hqwuzhaoyi/crunchyroll-loon/v0.2.0-beta.1/Crunchyroll.Translate.js", {${display}}) with tag="Crunchyroll：英文字幕机翻", requires_body=true, timeout=15
 
 [Mitm]
-hostname = www.crunchyroll.com
+hostname = www.crunchyroll.com, vod-fy-mod.crunchyrollcdn.com

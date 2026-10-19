@@ -4,8 +4,9 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
+await import('./build-translate.mjs');
 const destination = path.join(root, 'dist');
-const files = ['Crunchyroll.OfficialCN.plugin', 'Crunchyroll.OfficialCN.js', 'README.md', 'LICENSE'];
+const files = ['Crunchyroll.Chinese.plugin', 'Crunchyroll.OfficialCN.plugin', 'Crunchyroll.OfficialCN.js', 'Crunchyroll.Translate.js', 'README.md', 'LICENSE'];
 await mkdir(destination, { recursive: true });
 const checksums = [];
 for (const filename of files) {

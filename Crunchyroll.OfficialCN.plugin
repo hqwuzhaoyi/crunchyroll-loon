@@ -1,0 +1,12 @@
+#!name = Crunchyroll 官方中文字幕
+#!desc = 将 English 字幕入口指向已有的官方简中；缺简中时使用官方繁中。没有中文轨时保留原字幕。本插件不提供机器翻译。
+#!author = hqwuzhaoyi
+#!homepage = https://github.com/hqwuzhaoyi/crunchyroll-loon
+#!loon_version = 3.5.1(983)
+#!date = 2026-10-20
+
+[Script]
+response if ${url} ~= /^https:\/\/www\.crunchyroll\.com\/playback\/v3\/[^/?]+\/ios\/iphone\/play(?:\?|$)/i && ${request.method} == "GET" && ${response.status} == 200 then script("https://raw.githubusercontent.com/hqwuzhaoyi/crunchyroll-loon/v0.1.0/Crunchyroll.OfficialCN.js") with tag="Crunchyroll：官方中文字幕", requires_body=true, timeout=5
+
+[Mitm]
+hostname = www.crunchyroll.com

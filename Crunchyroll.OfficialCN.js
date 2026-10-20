@@ -6,6 +6,10 @@
 (function () {
   "use strict";
   try {
+    var options = typeof $argument === "object" && $argument ? $argument : {};
+    if (options.source === "始终机翻" && options.machine_translation !== false) {
+      $done({}); return;
+    }
     if (typeof $response === "undefined" || $response.status !== 200 || typeof $response.body !== "string") {
       $done({}); return;
     }

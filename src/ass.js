@@ -34,7 +34,9 @@ var CrunchyrollASS = (function () {
       var tags = text.match(/{[^}]*}/g) || [];
       var plain = text.replace(/{[^}]*}/g, "").replace(/\\[Nn]/g, " ").replace(/\\h/g, " ").trim();
       if (!/[a-z]/i.test(plain) || plain.length > 800) continue;
-      events.push({line: i, prefix: line.slice(0, position), text: text, plain: plain, tags: tags.join("")});
+      var metadata = line.slice(start, position - 1).split(",");
+      var speakerColumn = fields.indexOf("name");
+      events.push({id: "c" + i, speaker: speakerColumn >= 0 ? (metadata[speakerColumn] || "").trim() : "", line: i, prefix: line.slice(0, position), text: text, plain: plain, tags: tags.join("")});
     }
     return {lines: lines, newline: newline, events: events};
   }
@@ -43,11 +45,11 @@ var CrunchyrollASS = (function () {
     return String(value).replace(/\u0000/g, "").replace(/\\/g, "＼").replace(/{/g, "｛").replace(/}/g, "｝").replace(/\r\n?|\n/g, "\\N");
   }
 
-  function render(document, translations, bilingual) {
+  function render(document, translations, bilingual, byId) {
     var lines = document.lines.slice();
     var changed = 0;
     document.events.forEach(function (event) {
-      var translated = translations[event.plain];
+      var translated = translations[byId ? event.id : event.plain];
       if (typeof translated !== "string" || !translated.trim() || translated === event.plain) return;
       var chinese = safeText(translated.trim());
       var text = bilingual ? event.text + "\\N{\\r}" + chinese : event.tags + chinese;
@@ -101,5 +103,5 @@ var CrunchyrollASS = (function () {
     return "t" + (hash >>> 0).toString(16) + ":" + text.length;
   }
 
-  return {parse: parse, render: render, batches: batches, decodeGoogle: decodeGoogle, cacheKey: cacheKey};
+  return {parse: parse, render: render, renderById: function (document, translations, bilingual) { return render(document, translations, bilingual, true); }, batches: batches, decodeGoogle: decodeGoogle, cacheKey: cacheKey};
 })();

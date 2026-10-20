@@ -1,12 +1,13 @@
 (function () {
   "use strict";
+  var args = typeof $argument === "object" && $argument ? $argument : {};
+  if (CrunchyrollTranslateWithLLM(args)) return;
   var completed = false;
   var timer;
   var document;
   var translations = Object.create(null);
   var cache = {};
   var cacheChanged = false;
-  var args = typeof $argument === "object" && $argument ? $argument : {};
   var bilingual = args.display === "中英双语";
   var storageKey = "Crunchyroll.Translate.Google.zh-CN.v1";
 
